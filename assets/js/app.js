@@ -193,7 +193,7 @@ function medias() {
       host.addEventListener('pointerleave', () => setLvl(fig, 0));
       return;
     }
-    if (fig.closest('.s-1910-fond, .s-dec-fond, .s-prog-fond, .lb')) { fig.style.setProperty('--lvl', .35); return; }
+    if (fig.closest('.s-1910-fond, .s-dec-fond, .s-prog-fond, .s-presse-fond, .lb')) { fig.style.setProperty('--lvl', .35); return; }
     gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': 1, ease: 'none', scrollTrigger: { trigger: fig, start: 'top 92%', end: 'top 30%', scrub: .6 } });
   });
 }
@@ -358,7 +358,8 @@ async function eaux() {
   if (!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;
   try {
     const { initWater } = await import('./water.js');
-    boxes.forEach(b => { const w = initWater(b, { level: .0 }); if (w) { b._water = w; ctx.water.push(w); } });
+    const caustiques = `${REL}assets/img/ambiance/texture-caustiques-512.webp`;
+    boxes.forEach(b => { const w = initWater(b, { level: .0, caustiques }); if (w) { b._water = w; ctx.water.push(w); } });
   } catch (e) { /* version sans WebGL : la photo reste affichée */ }
 }
 

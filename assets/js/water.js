@@ -10,6 +10,8 @@ void main() { vUv = uv; gl_Position = vec4(position, 0.0, 1.0); }`;
 const fragment = /* glsl */`
 precision highp float;
 uniform sampler2D tMap;
+uniform sampler2D tCaust;
+uniform float uCaust;
 uniform vec2 uRes;
 uniform vec2 uImg;
 uniform vec2 uMouse;
@@ -68,7 +70,10 @@ void main() {
   vec3 duo = mix(uNavy, uFoam, smoothstep(0.02, 0.98, lum));
   duo = mix(duo, duo * uTint, 0.35);
   vec3 wet = col * vec3(0.95, 1.0, 1.05);
-  float c = caustic(uv * vec2(asp, 1.0) * 4.0 + 20.0, t * 0.5);
+  float cp = caustic(uv * vec2(asp, 1.0) * 4.0 + 20.0, t * 0.5);
+  vec2 cu = uv * vec2(asp, 1.0);
+  float ct = texture2D(tCaust, cu * 1.3 + vec2(t * 0.012, t * 0.008)).r * texture2D(tCaust, cu * 0.9 - vec2(t * 0.01, -t * 0.006)).r;
+  float c = mix(cp, ct * 1.6, uCaust);
   wet += c * 0.09 * vec3(0.8, 0.95, 1.0);
   float depth = clamp((line - uv.y) * 2.0, 0.0, 1.0);
   wet = mix(wet, wet * vec3(0.75, 0.88, 1.0), depth * 0.35);
@@ -120,7 +125,7 @@ async function paintPlaceholder(fig, { objet = true } = {}) {
   return cv;
 }
 
-export function initWater(box, { level = 0.2 } = {}) {
+export function initWater(box, { level = 0.2, caustiques = null } = {}) {
   const fig = box.querySelector('.media');
   let renderer;
   try {
@@ -136,8 +141,9 @@ export function initWater(box, { level = 0.2 } = {}) {
   box.appendChild(canvas);
 
   const texture = new Texture(gl, { generateMipmaps: false });
+  const tCaust = new Texture(gl, { generateMipmaps: false, wrapS: gl.REPEAT, wrapT: gl.REPEAT });
   const uniforms = {
-    tMap: { value: texture },
+    tMap: { value: texture }, tCaust: { value: tCaust }, uCaust: { value: 0 },
     uRes: { value: [1, 1] }, uImg: { value: [1600, 1000] }, uMouse: { value: [0.5, 0.5] },
     uTime: { value: 0 }, uLevel: { value: level }, uAmp: { value: 0 },
     uNavy: { value: hex('#0C2033') }, uFoam: { value: hex('#D9D4CA') }, uTint: { value: [0.86, 0.94, 1.06] },
@@ -147,7 +153,12 @@ export function initWater(box, { level = 0.2 } = {}) {
 
   let ready = false;
   const show = () => { ready = true; canvas.style.opacity = '1'; if (fig) fig.style.visibility = 'hidden'; };
-  const src = fig?.dataset.src;
+  if (caustiques) {
+    const ci = new Image(); ci.decoding = 'async';
+    ci.onload = () => { tCaust.image = ci; uniforms.uCaust.value = 1; };
+    ci.src = caustiques;
+  }
+  const src = (window.innerHeight > window.innerWidth && fig?.dataset.srcPortrait) || fig?.dataset.src;
   if (src) {
     const img = new Image(); img.decoding = 'async';
     img.onload = () => { texture.image = img; uniforms.uImg.value = [img.naturalWidth, img.naturalHeight]; show(); };
