@@ -2,7 +2,6 @@
 import { DATES } from '../data.js';
 import { SHOW, color, titre, joue, fLong, cap } from '../dates.js';
 import { setLvl } from '../app.js';
-import { initCarte } from '../carte.js';
 import { animerObjet } from './objets.js';
 
 export default async function accueil(ctx) {
@@ -20,7 +19,7 @@ export default async function accueil(ctx) {
     const build = pin => gsap.timeline({
       scrollTrigger: { trigger: s1910, start: pin ? 'top top' : 'top 70%', end: pin ? '+=120%' : 'bottom 60%', scrub: .7, pin, onUpdate: self => lire(self.progress) },
     })
-      .to(eau, { height: '86%', ease: 'none' }, 0)
+      .fromTo(eau, { scaleY: 0 }, { scaleY: 1, ease: 'none' }, 0)
       .to(o, { m: 8.62, ease: 'none', onUpdate: () => { h.textContent = o.m.toFixed(2).replace('.', ','); } }, 0);
     mm.add('(min-width: 900px)', () => { build(true); });
     mm.add('(max-width: 899px)', () => { build(false); });
@@ -48,9 +47,17 @@ export default async function accueil(ctx) {
         cartes.forEach(c => {
           const fig = c.querySelector('.media');
           ST.create({ trigger: c, containerAnimation: tw, start: 'left 70%', end: 'right 30%', onToggle: self => { if (self.isActive) document.documentElement.style.setProperty('--gel', c.style.getPropertyValue('--c')); } });
-          gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': .62, ease: 'none', scrollTrigger: { trigger: c, containerAnimation: tw, start: 'left 95%', end: 'left 40%', scrub: true } });
+          gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': 1, ease: 'none', scrollTrigger: { trigger: c, containerAnimation: tw, start: 'left 100%', end: 'left 55%', scrub: true } });
         });
-        return () => { piste.classList.remove('is-pinned'); gsap.set(rail, { x: 0 }); };
+        const onFocus = e => {
+          const c = e.target.closest('.carte'); const st = tw.scrollTrigger;
+          if (!c || !st) return;
+          const idx = cartes.indexOf(c);
+          const y = st.start + (st.end - st.start) * (idx / Math.max(1, cartes.length - 1));
+          if (ctx.lenis) ctx.lenis.scrollTo(y, { immediate: true }); else window.scrollTo(0, y);
+        };
+        rail.addEventListener('focusin', onFocus);
+        return () => { rail.removeEventListener('focusin', onFocus); piste.classList.remove('is-pinned'); gsap.set(rail, { x: 0 }); };
       });
     }
     rail.addEventListener('scroll', () => {
@@ -117,7 +124,9 @@ export default async function accueil(ctx) {
 
   /* ---------- tournée ---------- */
   const carteBox = document.querySelector('[data-carte]');
-  if (carteBox) {
+  // la carte (et ses 170 Ko de contours) ne se charge qu'à l'approche de la section
+  const lancerCarte = async () => {
+    const { initCarte } = await import('../carte.js');
     const range = document.querySelector('[data-annee]');
     const lab = carteBox.querySelector('[data-carte-annee]');
     const carte = initCarte(carteBox, { gsap, calme, onYear: y => { lab.textContent = y >= 2027 ? '2018 → 2027' : y; if (range && +range.value !== y) range.value = y; } });
@@ -129,6 +138,10 @@ export default async function accueil(ctx) {
         onUpdate: self => { const y = 2018 + Math.round(self.progress * 9); if (y !== carte._y) { carte._y = y; carte.setYear(y); } },
       });
     } else carte.setYear(2027, false);
+  };
+  if (carteBox) {
+    const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { io.disconnect(); lancerCarte(); } }, { rootMargin: '900px 0px' });
+    io.observe(carteBox);
   }
 
   /* ---------- frise du déroulé ---------- */
@@ -160,12 +173,10 @@ export default async function accueil(ctx) {
     a.addEventListener('pointermove', e => { const r = t.getBoundingClientRect(); t.style.setProperty('--tx', `${e.clientX - r.left}px`); t.style.setProperty('--ty', `${e.clientY - r.top}px`); });
   });
 
-  /* ---------- presse : les titres dérivent ---------- */
-  if (gsap && !calme) {
-    document.querySelectorAll('.article.flotte .article-titre').forEach((t, i) => {
-      gsap.fromTo(t, { x: i % 2 ? 28 : -18 }, { x: i % 2 ? -12 : 22, ease: 'none', scrollTrigger: { trigger: t, start: 'top bottom', end: 'bottom top', scrub: 1 } });
-      gsap.to(t, { y: 3, duration: 2 + (i % 3) * .5, yoyo: true, repeat: -1, ease: 'sine.inOut', delay: i * .13 });
-    });
+  /* ---------- presse : les coupures se posent en éventail ---------- */
+  const coup = document.querySelector('[data-coupures]');
+  if (coup && gsap && !calme && matchMedia('(min-width: 1000px)').matches) {
+    gsap.from(coup.children, { y: 90, rotate: (i) => (i % 2 ? 14 : -14), opacity: 0, duration: 1.2, ease: 'expo.out', stagger: .12, clearProps: 'transform,opacity', scrollTrigger: { trigger: coup, start: 'top 80%', once: true } });
   }
 
   /* ---------- formulaire en 4 étapes ---------- */

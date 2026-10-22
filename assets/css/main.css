@@ -19,8 +19,8 @@
   --gel-2: #3A1210;
 
   /* Typographies */
-  --f-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
-  --f-texte: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --f-display: "Fraunces", "Fraunces Fallback", "Iowan Old Style", Georgia, serif;
+  --f-texte: "Schibsted Grotesk", "Schibsted Fallback", "Helvetica Neue", Arial, sans-serif;
   --f-mono: "DM Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Échelle typographique */
@@ -46,12 +46,15 @@
 }
 @media (min-width: 1100px) { :root { --rail: 64px; } }
 
-@font-face { font-family: "Fraunces"; src: url("../fonts/fraunces-var.woff") format("woff"); font-weight: 100 900; font-style: normal; font-display: swap; }
-@font-face { font-family: "Fraunces"; src: url("../fonts/fraunces-italic-var.woff") format("woff"); font-weight: 100 900; font-style: italic; font-display: swap; }
-@font-face { font-family: "Schibsted Grotesk"; src: url("../fonts/schibsted-grotesk-var.woff") format("woff"); font-weight: 400 900; font-style: normal; font-display: swap; }
-@font-face { font-family: "Schibsted Grotesk"; src: url("../fonts/schibsted-grotesk-italic-var.woff") format("woff"); font-weight: 400 900; font-style: italic; font-display: swap; }
-@font-face { font-family: "DM Mono"; src: url("../fonts/dm-mono-400.woff") format("woff"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: "DM Mono"; src: url("../fonts/dm-mono-500.woff") format("woff"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url("../fonts/fraunces.woff2") format("woff2"); font-weight: 250 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Fraunces"; src: url("../fonts/fraunces-italic.woff2") format("woff2"); font-weight: 250 600; font-style: italic; font-display: swap; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("../fonts/schibsted-grotesk.woff2") format("woff2"); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "Schibsted Grotesk"; src: url("../fonts/schibsted-grotesk-italic.woff2") format("woff2"); font-weight: 400 700; font-style: italic; font-display: swap; }
+@font-face { font-family: "DM Mono"; src: url("../fonts/dm-mono-400.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "DM Mono"; src: url("../fonts/dm-mono-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+/* polices de secours aux mêmes métriques, pour éviter les sauts au chargement */
+@font-face { font-family: "Fraunces Fallback"; src: local("Georgia"), local("Times New Roman"); size-adjust: 104%; ascent-override: 92%; descent-override: 24%; line-gap-override: 0%; }
+@font-face { font-family: "Schibsted Fallback"; src: local("Arial"), local("Helvetica Neue"); size-adjust: 101%; ascent-override: 95%; descent-override: 25%; line-gap-override: 0%; }
 
 /* ---------- Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -745,3 +748,98 @@ html.calme .media .m-duo, html.calme .media .m-ligne { display: none; }
 .s-presse-fond .media { position: absolute; inset: 0; }
 .s-presse-fond::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, var(--nuit) 0%, rgba(11, 26, 42, .55) 35%, rgba(11, 26, 42, .8) 70%, var(--nuit) 100%); }
 .s-presse .wrap { position: relative; z-index: 1; }
+
+/* =====================================================================
+   v4 — corrections de l'audit
+   ===================================================================== */
+:root { --s-6: clamp(4.5rem, 8vw, 7.5rem); }
+
+/* Aperçu flou pendant le chargement des photos */
+.media::before { content: ""; position: absolute; inset: -6%; z-index: 0; background: var(--lqip, none) center / cover no-repeat; filter: blur(18px) saturate(.6) brightness(.75); pointer-events: none; }
+
+/* Textes trop petits ou trop pâles */
+.mono { font-size: max(.75rem, 11px); }
+.carte-age, .statut, .seg button, .date-j span, .fx dt, .verif, .teaser-leg, .media figcaption, .article .ext, .a-completer { font-size: max(.7rem, 11px) !important; }
+.credit { font-size: max(.62rem, 10.5px) !important; }
+.recit p { color: rgba(241, 236, 226, .5); }
+.texte { color: rgba(241, 236, 226, .85); max-width: 46ch; }
+.texte .adr { font-family: var(--f-mono); font-size: .9em; color: var(--ecume); white-space: nowrap; }
+p.prose { display: block; }
+
+/* Zones tactiles */
+.seg button { min-height: 36px; padding: 0 .9rem; }
+.ft ul a { display: inline-block; padding: .3rem 0; }
+.fil a { padding: .35rem 0; display: inline-block; }
+.carte-geo .hit { fill: transparent; }
+
+/* Échelle de crue et niveaux d'eau : transformations sans décalage de mise en page */
+.echelle-eau { height: calc(100% - 128px); bottom: 32px; transform-origin: bottom; transform: scaleY(0); }
+.echelle-rep { bottom: 32px; will-change: transform; }
+.s-1910-eau { height: 86%; transform-origin: bottom; transform: scaleY(0); will-change: transform; }
+.cal-eau { height: 90%; transform-origin: bottom; transform: scaleY(var(--niveau)); transition: none; }
+.hauteur-leg { margin-top: calc(var(--s-2) + .4em); }
+
+/* Accueil : indicateur de défilement sans collision avec la carte « Prochaine représentation » */
+.hero-indice { right: auto; left: 50%; transform: translateX(-50%); }
+@media (min-width: 1000px) and (max-height: 820px) { .hero-indice { display: none; } }
+
+/* Presse : coupures réelles + liste */
+.presse-grid { display: grid; gap: var(--s-4); }
+@media (min-width: 1000px) { .presse-grid { grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); align-items: start; } .coupures { position: sticky; top: 110px; } }
+.coupures { position: relative; height: clamp(300px, 34vw, 480px); }
+.coupure { position: absolute; width: 58%; top: 0; left: 0; display: block; background: #fff; box-shadow: 0 18px 50px rgba(0, 0, 0, .45); transform-origin: 50% 80%; transition: transform .7s var(--ease), z-index 0s .2s; text-decoration: none; }
+.coupure img { width: 100%; height: auto; aspect-ratio: 3 / 4; object-fit: cover; object-position: top; display: block; }
+.coupure .mono { position: absolute; left: 0; bottom: -1.8rem; color: var(--brume); white-space: nowrap; font-size: max(.68rem, 11px); }
+.coupure:nth-child(1) { transform: translate(0%, 4%) rotate(-7deg); z-index: 1; }
+.coupure:nth-child(2) { transform: translate(28%, 0%) rotate(3deg); z-index: 2; }
+.coupure:nth-child(3) { transform: translate(14%, 10%) rotate(-2deg); z-index: 3; }
+.coupure:nth-child(4) { transform: translate(40%, 14%) rotate(6deg); z-index: 4; }
+.coupure:hover, .coupure:focus-visible { transform: translate(var(--hx, 20%), -4%) rotate(0deg) scale(1.04); z-index: 9; transition: transform .6s var(--ease), z-index 0s; }
+.coupure:nth-child(1) { --hx: 0%; } .coupure:nth-child(2) { --hx: 28%; } .coupure:nth-child(3) { --hx: 14%; } .coupure:nth-child(4) { --hx: 40%; }
+.coupure .mono { opacity: 0; transition: opacity .4s; }
+.coupure:hover .mono, .coupure:focus-visible .mono { opacity: 1; }
+@media (max-width: 999px) {
+  .coupures { height: auto; display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: .5rem 0 2.4rem; scrollbar-width: none; }
+  .coupures::-webkit-scrollbar { display: none; }
+  .coupure { position: relative; flex: 0 0 42%; transform: none !important; scroll-snap-align: start; }
+  .coupure .mono { opacity: 1; }
+}
+.article.flotte .article-titre { transform: none; }
+.presse-plus { margin-top: var(--s-3); }
+.presse-suite { display: contents; }
+.presse-suite[hidden] { display: none !important; }
+
+/* Équipe : bios dépliables sur téléphone */
+.bio-btn { display: none; align-items: center; gap: .4rem; font: 500 max(.7rem, 11px)/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--laiton); padding: .55rem 0; justify-self: start; }
+.bio-btn svg { transition: transform .4s var(--ease); }
+.bio-btn[aria-expanded="true"] svg { transform: rotate(45deg); }
+.bio { display: grid; gap: .5rem; }
+@media (max-width: 599px) {
+  .equipe { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3) 12px; }
+  .membre h3 { font-size: 1.15rem; }
+  .bio-btn { display: inline-flex; }
+  .bio { display: none; grid-column: 1 / -1; }
+  .bio.is-open { display: grid; }
+}
+
+/* Fiches : objet du spectacle en bas à droite, hors des visages */
+.f-objet { top: auto; bottom: clamp(5.5rem, 12vh, 8rem); right: max(var(--gr), 4vw); width: clamp(84px, 11vw, 150px); opacity: .85; }
+@media (max-width: 760px) { .f-objet { display: none; } }
+.f-intro-cote { display: grid; gap: var(--s-3); align-content: start; }
+.f-intro-photo { aspect-ratio: 4 / 5; }
+@media (min-width: 1000px) { .f-intro-cote { position: sticky; top: 150px; } }
+.liste-vide { display: grid; gap: var(--s-2); justify-items: start; }
+.liste-vide .btn { margin-top: .4rem; }
+
+/* Un seul bouton « Programmer » en haut des fiches */
+.hd .hd-cta { transition: opacity .3s, visibility .3s; }
+body.fx-colle .hd .hd-cta { opacity: 0; visibility: hidden; }
+
+/* Agenda : sélecteur de département plus court sur téléphone */
+@media (max-width: 760px) { .a-outils .champ select { font-size: .85rem; } }
+
+/* Page 404 */
+.a-hero--404 { min-height: 88svh; }
+.presse-plus { justify-self: start; }
+.compte span, .etapes-nav span, .tool .lbl { font-size: max(.68rem, 11px); }
+.annees input[type="range"] { height: 32px; }

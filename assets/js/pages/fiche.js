@@ -15,7 +15,7 @@ export default function fiche(ctx) {
   const past = mine.filter(x => !fut.includes(x)).sort((a, b) => b.d.localeCompare(a.d));
   const av = document.querySelector('[data-a-venir]');
   if (av) av.innerHTML = fut.length ? fut.map(x => ligne(x, { rel: '../', withShow: false, ics: true })).join('')
-    : '<p class="liste-vide">Aucune date annoncée pour le moment. Ce spectacle est disponible pour vos programmations.</p>';
+    : `<div class="liste-vide"><p>Aucune date annoncée pour le moment. Ce spectacle est disponible pour vos programmations.</p><a class="btn btn--rouge" href="../index.html#programmer" data-prefill="${key}">Programmer ce spectacle <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>`;
   const pa = document.querySelector('[data-passees]');
   if (pa) pa.innerHTML = past.map(x => ligne(x, { rel: '../', withShow: false })).join('');
   const nb = document.querySelector('[data-nb-passees]');

@@ -96,16 +96,26 @@ function ancres() {
 let menuOpen = false;
 const menu = document.querySelector('[data-menu]');
 const burger = document.querySelector('[data-burger]');
+const inertes = () => document.querySelectorAll('main, footer, .hd-in > :not(.hd-tools), .hd-tools > :not(.burger)');
 function openMenu() {
   menuOpen = true; menu.classList.add('is-open'); menu.setAttribute('aria-hidden', 'false');
   burger.setAttribute('aria-expanded', 'true'); ctx.lenis && ctx.lenis.stop();
+  inertes().forEach(el => { el.inert = true; });
   menu.querySelector('a')?.focus();
 }
 function closeMenu() {
   if (!menuOpen) return;
   menuOpen = false; menu.classList.remove('is-open'); menu.setAttribute('aria-hidden', 'true');
   burger.setAttribute('aria-expanded', 'false'); ctx.lenis && ctx.lenis.start();
+  inertes().forEach(el => { el.inert = false; });
 }
+menu?.addEventListener('keydown', e => {
+  if (e.key !== 'Tab') return;
+  const f = [...menu.querySelectorAll('a, button')];
+  const i = f.indexOf(document.activeElement);
+  if (e.shiftKey && i <= 0) { e.preventDefault(); f[f.length - 1].focus(); }
+  else if (!e.shiftKey && i === f.length - 1) { e.preventDefault(); f[0].focus(); }
+});
 function entete() {
   const hd = document.querySelector('[data-hd]');
   burger?.addEventListener('click', openMenu);
@@ -133,7 +143,7 @@ function echelle() {
     const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
     const m = p * 8.62;
     const pct = (m / 9) * 100;
-    if (reg && eau) { const h = reg.getBoundingClientRect().height; eau.style.height = (h * pct / 100) + 'px'; rep.style.bottom = `calc(32px + ${h * pct / 100}px)`; }
+    if (reg && eau) { const h = reg.getBoundingClientRect().height; eau.style.transform = `scaleY(${pct / 100})`; rep.style.transform = `translateY(calc(50% - ${h * pct / 100}px))`; }
     if (val) val.textContent = m.toFixed(2).replace('.', ',') + ' m';
     if (barre) barre.style.transform = `scaleX(${p})`;
   };
@@ -194,7 +204,7 @@ function medias() {
       return;
     }
     if (fig.closest('.s-1910-fond, .s-dec-fond, .s-prog-fond, .s-presse-fond, .lb')) { fig.style.setProperty('--lvl', .35); return; }
-    gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': 1, ease: 'none', scrollTrigger: { trigger: fig, start: 'top 92%', end: 'top 30%', scrub: .6 } });
+    gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': 1, ease: 'none', scrollTrigger: { trigger: fig, start: 'top 96%', end: 'top 58%', scrub: .5 } });
   });
 }
 
@@ -205,7 +215,9 @@ function mouilles() {
     if (h.closest('.hero, .f-hero, .a-hero')) return;
     gsap.fromTo(h, { '--soft': 0 }, { '--soft': 100, ease: 'none', scrollTrigger: { trigger: h, start: 'top 85%', end: 'top 25%', scrub: true } });
     if (window.SplitText) {
+      const label = h.innerText.replace(/\s+/g, ' ').trim();
       const sp = new SplitText(h, { type: 'words', wordsClass: 'mot' });
+      h.setAttribute('aria-label', label);
       gsap.from(sp.words, { yPercent: 55, rotate: 3, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: .05, scrollTrigger: { trigger: h, start: 'top 92%', once: true } });
     }
   });
@@ -245,6 +257,27 @@ function copies() {
     }
     ctx.sons?.plouf();
   });
+}
+
+/* ---------------- dépliants : bios de l'équipe, suite de la presse ---------------- */
+function depliants() {
+  document.querySelectorAll('.bio-btn').forEach(b => b.addEventListener('click', () => {
+    const open = b.getAttribute('aria-expanded') !== 'true';
+    b.setAttribute('aria-expanded', String(open));
+    document.getElementById(b.getAttribute('aria-controls'))?.classList.toggle('is-open', open);
+    ST && ST.refresh();
+  }));
+  const plus = document.querySelector('[data-presse-plus]');
+  if (plus) plus.addEventListener('click', () => {
+    const suite = document.getElementById(plus.getAttribute('aria-controls'));
+    suite.hidden = false;
+    plus.remove();
+    suite.querySelector('a, [tabindex]')?.focus({ preventScroll: true });
+    if (gsap && !calme) gsap.from(suite.children, { y: 20, opacity: 0, duration: .6, stagger: .05, ease: 'power3.out' });
+    ST && ST.refresh();
+  });
+  const fhero = document.querySelector('.f-hero');
+  if (fhero) new IntersectionObserver(([en]) => body.classList.toggle('fx-colle', !en.isIntersecting), { rootMargin: '-70px 0px 0px 0px' }).observe(fhero);
 }
 
 /* ---------------- coupures de presse en grand ---------------- */
@@ -372,7 +405,9 @@ function entreeHero() {
   const fig = hero.querySelector('[data-water] .media');
   const tl = gsap.timeline();
   if (h1 && window.SplitText && !calme) {
+    const label = h1.innerText.replace(/\s+/g, ' ').trim();
     const sp = new SplitText(h1, { type: 'lines,words', linesClass: 'ligne-mask' });
+    h1.setAttribute('aria-label', label);
     tl.from(sp.words, { yPercent: 110, duration: 1.1, ease: 'expo.out', stagger: .06 });
     tl.fromTo(h1, { '--soft': 100 }, { '--soft': 0, duration: 1.6, ease: 'power2.out' }, 0);
   }
@@ -381,11 +416,13 @@ function entreeHero() {
     const objet = hero.querySelector('.f-objet');
     if (objet) tl.from(objet, { y: 60, rotate: -12, opacity: 0, duration: 1.4, ease: 'elastic.out(1,.6)' }, .3);
   }
-  const lvlStart = PAGE === 'accueil' ? .22 : PAGE === 'fiche' ? .5 : .3;
+  const fiche = PAGE === 'fiche';
+  const lvlStart = PAGE === 'accueil' ? .22 : fiche ? 1 : .3;
   if (water) {
-    if (!calme) tl.fromTo(water, { level: 0 }, { level: lvlStart, duration: 2.2, ease: 'power2.inOut' }, 0);
+    if (!calme) tl.fromTo(water, { level: 0 }, { level: lvlStart, duration: fiche ? 2.6 : 2.2, ease: 'power2.inOut' }, 0);
     else water.level = lvlStart;
-    gsap.to(water, { level: 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom 20%', scrub: .8 } });
+    if (fiche) gsap.fromTo(water, { level: 1 }, { level: .2, ease: 'none', immediateRender: false, scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom top', scrub: .8 } });
+    else gsap.to(water, { level: 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom 20%', scrub: .8 } });
     hero.addEventListener('click', e => {
       if (e.target.closest('a, button')) return;
       const r = hero.getBoundingClientRect();
@@ -394,7 +431,7 @@ function entreeHero() {
     });
   } else if (fig && !calme) {
     tl.fromTo(fig, { '--lvl': 0 }, { '--lvl': lvlStart, duration: 2, ease: 'power2.inOut' }, 0);
-    gsap.to(fig, { '--lvl': 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom 20%', scrub: .8 } });
+    if (!fiche) gsap.to(fig, { '--lvl': 1, ease: 'none', scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom 20%', scrub: .8 } });
   } else if (fig) { fig.style.setProperty('--lvl', 1); }
 }
 
@@ -404,7 +441,7 @@ async function boot() {
     gsap.registerPlugin(ST);
     if (window.SplitText) gsap.registerPlugin(window.SplitText);
   }
-  prefs(); entete(); ancres(); echelle(); copies(); scans(); prochaine();
+  prefs(); entete(); ancres(); echelle(); copies(); scans(); depliants(); prochaine();
   await smooth();
   const trans = entree();
   if (!trans) await Promise.race([ouverture(), new Promise(r => setTimeout(r, 3200))]);

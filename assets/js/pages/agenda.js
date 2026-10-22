@@ -1,7 +1,6 @@
 // Agenda : listes depuis le fichier unique, filtres spectacle et département, .ics, carte libre
 import { DATES } from '../data.js';
 import { ligne, upcoming, joue, daysUntil, titre, icsFor } from '../dates.js';
-import { initCarte } from '../carte.js';
 
 export default function agenda(ctx) {
   const { gsap, calme } = ctx;
@@ -35,13 +34,19 @@ export default function agenda(ctx) {
   // carte
   const box = document.querySelector('[data-carte]');
   let carte = null;
-  if (box) {
+  const lancerCarte = async () => {
+    const { initCarte } = await import('../carte.js');
     const range = document.querySelector('[data-annee]');
     const out = document.querySelector('[data-annee-out]');
     const lab = box.querySelector('[data-carte-annee]');
     carte = initCarte(box, { gsap, calme, onYear: y => { const t = y > 2027 ? 'Toutes' : `→ ${y}`; lab.textContent = t; if (out) out.textContent = t; } });
     carte.setYear(9999, false);
     range?.addEventListener('input', () => carte.setYear(+range.value > 2027 ? 9999 : +range.value));
+    carte.setFilter(filtre);
+  };
+  if (box) {
+    const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { io.disconnect(); lancerCarte(); } }, { rootMargin: '900px 0px' });
+    io.observe(box);
   }
 
   // filtres

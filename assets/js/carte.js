@@ -39,14 +39,16 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
     g.style.setProperty('--c', color(p.s));
     const r = (1.6 + Math.sqrt(Math.max(1, p.n)) * 1.1);
     p.r = r;
+    const hit = el('circle', { class: 'hit', cx: p.xy[0], cy: p.xy[1], r: Math.max(r * 2.2, 7) });
     const onde = el('circle', { class: 'onde', cx: p.xy[0], cy: p.xy[1], r, opacity: 0 });
     const dot = el('circle', { class: 'pt', cx: p.xy[0], cy: p.xy[1], r: p.n ? r : r * .7 });
     if (!p.n) { dot.setAttribute('fill', 'none'); dot.setAttribute('stroke', color(p.s)); dot.setAttribute('stroke-dasharray', '1 1'); }
-    g.append(onde, dot);
+    g.append(hit, onde, dot);
+    p.hit = hit;
     gPts.appendChild(g);
     p.g = g; p.dot = dot; p.onde = onde; p.on = true;
     if (p.c === 'Saint-Grégoire') {
-      const lab = el('text', { x: p.xy[0] + 6, y: p.xy[1] - 6, fill: '#F1ECE2', 'font-size': 7, 'font-family': 'DM Mono, monospace' });
+      const lab = el('text', { x: p.xy[0] + 6, y: p.xy[1] - 6, fill: '#F1ECE2', 'font-size': 9, 'font-family': 'DM Mono, monospace' });
       lab.textContent = 'Saint-Grégoire, siège';
       g.appendChild(lab);
       p.label = lab;
@@ -115,7 +117,8 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
       svg.setAttribute('viewBox', vb(v));
       pts.forEach(p => p.dot.setAttribute('r', (p.n ? p.r : p.r * .7) * k));
     }
-    pts.forEach(p => { if (p.label) { p.label.setAttribute('font-size', 7 * k); p.label.setAttribute('x', p.xy[0] + 6 * k); p.label.setAttribute('y', p.xy[1] - 6 * k); } });
+    pts.forEach(p => p.hit.setAttribute('r', Math.max(p.r * 2.2, 7) * k));
+    pts.forEach(p => { if (p.label) { p.label.setAttribute('font-size', 9 * k); p.label.setAttribute('x', p.xy[0] + 6 * k); p.label.setAttribute('y', p.xy[1] - 6 * k); } });
     hide();
   };
   btns.forEach(b => b.addEventListener('click', () => setVue(b.dataset.vue)));
