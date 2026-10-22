@@ -702,3 +702,9 @@ html.calme .media .m-duo, html.calme .media .m-ligne { display: none; }
   .membre { grid-column: span 2; }
   .membre:nth-child(1), .membre:nth-child(2), .membre:nth-child(6), .membre:nth-child(7) { grid-column: span 3; }
 }
+.logo-picto { height: 26px; width: auto; flex: none; }
+.ouverture-picto { width: min(240px, 52vw); height: auto; margin: 0 auto 1.6rem; }
+.ft-logo { width: min(240px, 70%); height: auto; margin-bottom: 1.8rem; }
+.lb-scroll { overflow: auto; place-items: start center; overscroll-behavior: contain; }
+.lb-scroll img { width: min(100%, 980px); height: auto; max-height: none; background: #fff; }
+.galerie .media figcaption { z-index: 6; }

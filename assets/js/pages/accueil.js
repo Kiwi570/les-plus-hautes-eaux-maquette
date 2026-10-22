@@ -48,7 +48,7 @@ export default async function accueil(ctx) {
         cartes.forEach(c => {
           const fig = c.querySelector('.media');
           ST.create({ trigger: c, containerAnimation: tw, start: 'left 70%', end: 'right 30%', onToggle: self => { if (self.isActive) document.documentElement.style.setProperty('--gel', c.style.getPropertyValue('--c')); } });
-          gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': .45, ease: 'none', scrollTrigger: { trigger: c, containerAnimation: tw, start: 'left 95%', end: 'left 40%', scrub: true } });
+          gsap.fromTo(fig, { '--lvl': 0 }, { '--lvl': .62, ease: 'none', scrollTrigger: { trigger: c, containerAnimation: tw, start: 'left 95%', end: 'left 40%', scrub: true } });
         });
         return () => { piste.classList.remove('is-pinned'); gsap.set(rail, { x: 0 }); };
       });

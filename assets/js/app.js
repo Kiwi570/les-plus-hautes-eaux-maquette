@@ -247,6 +247,29 @@ function copies() {
   });
 }
 
+/* ---------------- coupures de presse en grand ---------------- */
+function scans() {
+  let lb = null, last = null;
+  const close = () => { lb?.remove(); lb = null; ctx.lenis?.start(); last?.focus(); };
+  document.addEventListener('click', e => {
+    const a = e.target.closest('[data-scan]');
+    if (!a) return;
+    e.preventDefault();
+    last = a;
+    lb = document.createElement('div');
+    lb.className = 'lb'; lb.setAttribute('role', 'dialog'); lb.setAttribute('aria-modal', 'true'); lb.setAttribute('aria-label', a.dataset.scanAlt || 'Article');
+    lb.innerHTML = `<div class="lb-top"><span class="mono"></span><button class="tool" type="button" data-x>Fermer</button></div><div class="lb-scene lb-scroll" data-lenis-prevent tabindex="0"><img alt=""></div><div></div>`;
+    lb.querySelector('.mono').textContent = a.dataset.scanAlt || '';
+    const img = lb.querySelector('img'); img.src = a.dataset.scan; img.alt = a.dataset.scanAlt || '';
+    document.body.appendChild(lb);
+    ctx.lenis?.stop();
+    lb.querySelector('[data-x]').focus();
+    lb.addEventListener('click', ev => { if (ev.target.closest('[data-x]') || ev.target === lb) close(); });
+    if (gsap && !calme) gsap.from(lb, { opacity: 0, duration: .3 });
+  });
+  addEventListener('keydown', e => { if (lb && e.key === 'Escape') close(); });
+}
+
 /* ---------------- prochaine représentation (compte à rebours) ---------------- */
 function prochaine() {
   const n = next();
@@ -380,7 +403,7 @@ async function boot() {
     gsap.registerPlugin(ST);
     if (window.SplitText) gsap.registerPlugin(window.SplitText);
   }
-  prefs(); entete(); ancres(); echelle(); copies(); prochaine();
+  prefs(); entete(); ancres(); echelle(); copies(); scans(); prochaine();
   await smooth();
   const trans = entree();
   if (!trans) await Promise.race([ouverture(), new Promise(r => setTimeout(r, 3200))]);
