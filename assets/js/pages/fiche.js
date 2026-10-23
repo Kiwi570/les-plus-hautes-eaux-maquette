@@ -21,6 +21,12 @@ export default function fiche(ctx) {
   const nb = document.querySelector('[data-nb-passees]');
   if (nb) nb.textContent = `(${past.length})`;
   const p = fut[0];
+  // fiche technique défilante sur mobile : atteignable au clavier seulement quand elle déborde
+  const fxListe = document.querySelector('[data-fx] dl');
+  if (fxListe) {
+    const majFx = () => { if (fxListe.scrollWidth > fxListe.clientWidth + 1) fxListe.setAttribute('tabindex', '0'); else fxListe.removeAttribute('tabindex'); };
+    majFx(); addEventListener('resize', majFx, { passive: true });
+  }
   const fx = document.querySelector('[data-fx-next]');
   if (fx) { if (p) { const d = parse(p.d); fx.textContent = `${d.getDate()} ${MOIS_C[d.getMonth()]} ${d.getFullYear()}, ${p.c}`; } else fx.textContent = 'à programmer'; }
   const cf = document.querySelector('[data-compte-fiche]');

@@ -27,7 +27,7 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
 
   let vue = 'ouest';
   const vb = v => VIEWS[v].join(' ');
-  const svg = el('svg', { viewBox: vb(vue), role: 'img', 'aria-label': 'Carte des communes où la compagnie a joué' });
+  const svg = el('svg', { viewBox: vb(vue), role: 'group', 'aria-label': 'Carte des communes où la compagnie a joué' });
   const gDep = el('g'), gPts = el('g');
   for (const d of DEPTS) gDep.appendChild(el('path', { d: d.d, class: 'dep' + (depsJoues.has(d.code) ? ' joue' : ''), 'data-dep': d.code }));
   svg.append(gDep, gPts);
@@ -51,6 +51,8 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
       const lab = el('text', { x: p.xy[0] + 6, y: p.xy[1] - 6, fill: '#F1ECE2', 'font-size': 9, 'font-family': 'DM Mono, monospace' });
       lab.textContent = 'Saint-Grégoire, siège';
       g.appendChild(lab);
+      // le nom accessible reprend l'étiquette visible
+      g.setAttribute('aria-label', `Saint-Grégoire, siège (${p.dep}) : ${p.n} date${p.n > 1 ? 's' : ''}`);
       p.label = lab;
     }
   }

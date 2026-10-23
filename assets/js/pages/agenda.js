@@ -63,7 +63,7 @@ export default function agenda(ctx) {
 
   // .ics
   document.addEventListener('click', e => {
-    const b = e.target.closest('[data-ics]');
+    const b = e.target.closest('button[data-ics]'); // le conteneur porte aussi data-ics="1" (option d'affichage)
     if (!b) return;
     const [d, s, c] = b.dataset.ics.split('|');
     icsFor(d, s, c);

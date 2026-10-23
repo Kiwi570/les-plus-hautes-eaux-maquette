@@ -131,6 +131,9 @@ p { margin: 0; }
 .nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: .1rem; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: right; transition: transform .45s var(--ease); }
 .nav a:hover::after, .nav a[aria-current="page"]::after { transform: scaleX(1); transform-origin: left; }
 @media (min-width: 1100px) { .nav { display: flex; gap: clamp(1rem, 2vw, 2rem); } }
+/* 1100–1299 px : le nom passe sur deux lignes pour ne pas chevaucher la navigation */
+.nav a { white-space: nowrap; }
+@media (min-width: 1100px) and (max-width: 1299px) { .logo-txt { white-space: normal; max-width: 8.6em; line-height: 1.02; } }
 .hd-tools { display: flex; align-items: center; gap: .4rem; }
 .tool {
   display: inline-flex; align-items: center; gap: .45rem; height: 38px; padding: 0 .8rem;
@@ -142,7 +145,7 @@ p { margin: 0; }
 .tool svg { width: 15px; height: 15px; }
 .tool .lbl { display: none; }
 @media (min-width: 720px) { .tool .lbl { display: inline; } }
-.burger { width: 44px; height: 38px; display: grid; place-items: center; border: 1px solid var(--ligne-2); border-radius: 99px; }
+.burger { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--ligne-2); border-radius: 99px; }
 .burger span { display: block; width: 18px; height: 1px; background: currentColor; box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor; }
 @media (min-width: 1100px) { .burger { display: none; } }
 .hd .btn { display: none; }
@@ -189,8 +192,8 @@ p { margin: 0; }
 .btn::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--ecume); transform: translateY(101%); border-radius: 50% 50% 0 0 / 30% 30% 0 0; transition: transform .55s var(--ease), border-radius .55s var(--ease); }
 .btn:hover::before { transform: translateY(0); border-radius: 0; }
 .btn:hover { color: var(--nuit); border-color: var(--ecume); }
-.btn--rouge { --bg: var(--repere); --bd: var(--repere); }
-.btn--petit { min-height: 38px; padding: 0 1rem; font-size: .8rem; }
+.btn--rouge { --bg: #BF362C; --bd: #BF362C; } /* repère assombri : texte écume à 4,7:1 */
+.btn--petit { min-height: 44px; padding: 0 1rem; font-size: .8rem; }
 .btn svg { width: 16px; height: 16px; flex: none; }
 .magnet { will-change: transform; }
 .chip {
@@ -256,6 +259,10 @@ p { margin: 0; }
 
 /* ---------- Ouverture (chargement) ---------- */
 .ouverture { position: fixed; inset: 0; z-index: 150; pointer-events: none; display: grid; place-items: center; }
+/* filet : si app.js ne démarre pas, le voile d'ouverture s'efface seul */
+.ouverture { animation: ouverture-secours .5s 6s forwards; }
+@keyframes ouverture-secours { to { opacity: 0; visibility: hidden; } }
+html.menu-ouvert { overflow: hidden; }
 .ouverture-eau { position: absolute; inset: 0; background: var(--abysse); transform-origin: bottom; }
 .ouverture-eau svg { position: absolute; left: 0; width: 200%; height: 40px; top: -39px; color: var(--abysse); }
 .ouverture-nom { position: relative; text-align: center; padding-inline: var(--g); }
@@ -321,7 +328,7 @@ html.no-ouverture .ouverture { display: none; }
 @media (min-width: 900px) { .s-1910-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: center; } }
 .hauteur { font-family: var(--f-display); font-size: clamp(5rem, 3rem + 11vw, 14rem); line-height: .8; font-weight: 250; letter-spacing: -.04em; font-variant-numeric: tabular-nums; font-variation-settings: "opsz" 144, "SOFT" 100; }
 .hauteur small { font-size: .32em; letter-spacing: 0; margin-left: .1em; }
-.hauteur-leg { margin-top: var(--s-2); color: var(--repere); }
+.hauteur-leg { margin-top: var(--s-2); color: #EB5A4E; }
 .recit { display: grid; gap: var(--s-3); max-width: 46ch; }
 .recit { gap: var(--s-2); }
 .recit p { font-family: var(--f-display); font-size: clamp(1.15rem, .85rem + .9vw, 1.6rem); line-height: 1.22; font-weight: 340; font-variation-settings: "opsz" 48, "SOFT" 40; color: rgba(241, 236, 226, .35); transition: color .6s; }
@@ -352,7 +359,7 @@ html.no-ouverture .ouverture { display: none; }
 .carte-titre em { font-style: italic; color: var(--brume); font-weight: 300; font-size: .7em; display: block; margin-top: .2em; }
 .carte p { color: rgba(241, 236, 226, .8); font-size: .95rem; max-width: 40ch; }
 .carte-bas { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-.carte-bas .lien { color: var(--c); }
+.carte-bas .lien { color: color-mix(in oklab, var(--c) 65%, var(--ecume)); }
 .carte-age { position: absolute; z-index: 4; left: 14px; top: 14px; background: var(--c); color: #0B1A2A; font: 500 .66rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: .08em; padding: .45rem .6rem; border-radius: 99px; }
 .rep-prog { height: 1px; background: var(--ligne); margin-top: var(--s-3); position: relative; }
 .rep-prog i { position: absolute; inset: 0; transform-origin: left; transform: scaleX(0); background: var(--ecume); }
@@ -401,6 +408,7 @@ html.no-ouverture .ouverture { display: none; }
 .chiffres div { background: var(--nuit); padding: 1rem .9rem; display: grid; gap: .3rem; }
 .chiffres b { font-family: var(--f-display); font-weight: 300; font-size: clamp(2rem, 1.4rem + 2vw, 3.2rem); line-height: 1; font-variant-numeric: tabular-nums; font-variation-settings: "opsz" 144, "SOFT" 80; }
 .chiffres span { color: var(--brume); }
+@media (max-width: 360px) { .chiffres div { padding: .9rem .55rem; grid-template-columns: minmax(0, 1fr); } .chiffres span { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; } }
 .carte-geo { position: relative; border: 1px solid var(--ligne); background: radial-gradient(80% 60% at 30% 40%, rgba(94, 169, 214, .08), transparent 70%), var(--abysse); overflow: hidden; }
 .carte-geo svg { width: 100%; height: auto; display: block; touch-action: pan-y; }
 .carte-geo .dep { fill: rgba(241, 236, 226, .035); stroke: rgba(241, 236, 226, .22); stroke-width: .5; vector-effect: non-scaling-stroke; transition: fill .4s; }
@@ -514,7 +522,7 @@ html.no-ouverture .ouverture { display: none; }
 .champ select { appearance: none; background: transparent url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23F1ECE2' stroke-width='1.4'/%3E%3C/svg%3E") no-repeat right .2rem center / 12px; padding-right: 1.6rem; }
 .champ select option { background: var(--nuit); color: var(--ecume); }
 .champ textarea { resize: vertical; min-height: 110px; }
-.champ input:focus, .champ select:focus, .champ textarea:focus { outline: none; border-bottom-color: var(--ecume); }
+.champ input:focus, .champ select:focus, .champ textarea:focus { outline: none; border-bottom-color: var(--ecume); box-shadow: 0 2px 0 var(--laiton); }
 .champs-2 { display: grid; gap: 1.1rem; }
 @media (min-width: 640px) { .champs-2 { grid-template-columns: 1fr 1fr; } }
 .form-actions { display: flex; justify-content: space-between; align-items: center; gap: .8rem; margin-top: var(--s-4); flex-wrap: wrap; }
@@ -767,7 +775,7 @@ html.calme .media .m-duo, html.calme .media .m-ligne { display: none; }
 p.prose { display: block; }
 
 /* Zones tactiles */
-.seg button { min-height: 36px; padding: 0 .9rem; }
+.seg button { min-height: 44px; padding: 0 .9rem; }
 .ft ul a { display: inline-block; padding: .3rem 0; }
 .fil a { padding: .35rem 0; display: inline-block; }
 .carte-geo .hit { fill: transparent; }
@@ -836,10 +844,18 @@ p.prose { display: block; }
 body.fx-colle .hd .hd-cta { opacity: 0; visibility: hidden; }
 
 /* Agenda : sélecteur de département plus court sur téléphone */
-@media (max-width: 760px) { .a-outils .champ select { font-size: .85rem; } }
+@media (max-width: 760px) { .a-outils .champ select { font-size: 16px; } }
 
 /* Page 404 */
 .a-hero--404 { min-height: 88svh; }
 .presse-plus { justify-self: start; }
 .compte span, .etapes-nav span, .tool .lbl { font-size: max(.68rem, 11px); }
 .annees input[type="range"] { height: 32px; }
+
+/* audit : sans JS le récit reste lisible ; cibles tactiles */
+.no-js .recit p { color: var(--ecume); }
+@media (pointer: coarse) {
+  .chip, .tool { min-height: 44px; }
+  .bio-btn { min-height: 44px; }
+  .ft a { display: inline-block; padding-block: 8px; }
+}

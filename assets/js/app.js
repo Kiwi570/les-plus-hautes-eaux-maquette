@@ -10,8 +10,9 @@ const gsap = window.gsap;
 const ST = window.ScrollTrigger;
 const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
 const store = {
-  get(k, s = localStorage) { try { return s.getItem(k); } catch (e) { return null; } },
-  set(k, v, s = localStorage) { try { s.setItem(k, v); } catch (e) { /* stockage indisponible */ } },
+  // le stockage est résolu dans le try : en navigation privée stricte, le simple accès à localStorage lève une erreur
+  get(k, s) { try { return (s === 'session' ? sessionStorage : localStorage).getItem(k); } catch (e) { return null; } },
+  set(k, v, s) { try { (s === 'session' ? sessionStorage : localStorage).setItem(k, v); } catch (e) { /* stockage indisponible */ } },
 };
 const calme = root.classList.contains('calme');
 const ctx = { gsap, ST, calme, fine, REL, lenis: null, store, toast, sons: null, water: [] };
@@ -42,7 +43,7 @@ function prefs() {
       if (!ctx.sons) ctx.sons = await import('./sons.js');
       const on = bs.getAttribute('aria-pressed') !== 'true';
       bs.setAttribute('aria-pressed', String(on));
-      bs.setAttribute('aria-label', on ? "Couper l'ambiance sonore" : "Activer l'ambiance sonore");
+      bs.setAttribute('aria-label', on ? 'Son : couper l’ambiance sonore' : 'Son : activer l’ambiance sonore');
       on ? ctx.sons.start() : ctx.sons.stop();
     });
   }
@@ -74,7 +75,7 @@ function ancres() {
     const href = a.getAttribute('href');
     const url = new URL(href, location.href);
     const same = url.pathname === location.pathname || (PAGE === 'accueil' && /(^|\/)index\.html$/.test(url.pathname) && /(^|\/)(index\.html)?$/.test(location.pathname));
-    if (a.dataset.prefill) store.set('lphec-prefill', a.dataset.prefill, sessionStorage);
+    if (a.dataset.prefill) store.set('lphec-prefill', a.dataset.prefill, 'session');
     if (url.hash && (same || href.startsWith('#'))) {
       const t = document.querySelector(url.hash);
       if (t) {
@@ -100,6 +101,7 @@ const inertes = () => document.querySelectorAll('main, footer, .hd-in > :not(.hd
 function openMenu() {
   menuOpen = true; menu.classList.add('is-open'); menu.setAttribute('aria-hidden', 'false');
   burger.setAttribute('aria-expanded', 'true'); ctx.lenis && ctx.lenis.stop();
+  document.documentElement.classList.add('menu-ouvert');
   inertes().forEach(el => { el.inert = true; });
   menu.querySelector('a')?.focus();
 }
@@ -107,6 +109,7 @@ function closeMenu() {
   if (!menuOpen) return;
   menuOpen = false; menu.classList.remove('is-open'); menu.setAttribute('aria-hidden', 'true');
   burger.setAttribute('aria-expanded', 'false'); ctx.lenis && ctx.lenis.start();
+  document.documentElement.classList.remove('menu-ouvert');
   inertes().forEach(el => { el.inert = false; });
 }
 menu?.addEventListener('keydown', e => {
@@ -120,7 +123,7 @@ function entete() {
   const hd = document.querySelector('[data-hd]');
   burger?.addEventListener('click', openMenu);
   document.querySelector('[data-menu-close]')?.addEventListener('click', () => { closeMenu(); burger.focus(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen) { closeMenu(); burger.focus(); } });
   let last = 0;
   const onScroll = () => {
     const y = scrollY;
@@ -216,8 +219,10 @@ function mouilles() {
     gsap.fromTo(h, { '--soft': 0 }, { '--soft': 100, ease: 'none', scrollTrigger: { trigger: h, start: 'top 85%', end: 'top 25%', scrub: true } });
     if (window.SplitText) {
       const label = h.innerText.replace(/\s+/g, ' ').trim();
-      const sp = new SplitText(h, { type: 'words', wordsClass: 'mot' });
-      h.setAttribute('aria-label', label);
+      // découpe en mots : le texte reste lisible tel quel ; aria-label réservé aux titres (interdit sur <p>)
+      const titre = /^H[1-6]$/.test(h.tagName);
+      const sp = new SplitText(h, { type: 'words', wordsClass: 'mot', aria: titre ? 'auto' : 'none' });
+      if (titre) h.setAttribute('aria-label', label);
       gsap.from(sp.words, { yPercent: 55, rotate: 3, opacity: 0, duration: 1.1, ease: 'expo.out', stagger: .05, scrollTrigger: { trigger: h, start: 'top 92%', once: true } });
     }
   });
@@ -342,7 +347,7 @@ const V = {
 function sortie(href) {
   const v = document.querySelector('.vague');
   if (!v || !gsap) { location.href = href; return; }
-  store.set('lphec-trans', '1', sessionStorage);
+  store.set('lphec-trans', '1', 'session');
   v.style.visibility = 'visible';
   const p1 = v.querySelector('[data-v1]'), p2 = v.querySelector('[data-v2]');
   gsap.timeline({ onComplete: () => { location.href = href; } })
@@ -353,8 +358,8 @@ function sortie(href) {
 }
 function entree() {
   const v = document.querySelector('.vague');
-  if (!v || !gsap || store.get('lphec-trans', sessionStorage) !== '1') return false;
-  store.set('lphec-trans', '0', sessionStorage);
+  if (!v || !gsap || store.get('lphec-trans', 'session') !== '1') return false;
+  store.set('lphec-trans', '0', 'session');
   const p1 = v.querySelector('[data-v1]'), p2 = v.querySelector('[data-v2]');
   gsap.set([p1, p2], { attr: { d: V.plein } });
   v.style.visibility = 'visible';
@@ -368,7 +373,7 @@ function ouverture() {
   const ov = document.querySelector('[data-ouverture]');
   if (!ov) return Promise.resolve();
   if (root.classList.contains('no-ouverture') || !gsap) { ov.remove(); return Promise.resolve(); }
-  store.set('lphec-vu', '1', sessionStorage);
+  store.set('lphec-vu', '1', 'session');
   ctx.lenis && ctx.lenis.stop();
   const nom = ov.querySelector('[data-ov-nom]'), rep = ov.querySelector('[data-ov-rep]'), eau = ov.querySelector('[data-ov-eau]');
   let chars = [nom];
@@ -455,6 +460,11 @@ async function boot() {
   } catch (e) { console.error(e); }
   if (ST) { ST.refresh(); }
   document.fonts?.ready.then(() => ST && ST.refresh());
+  // arrivée par une ancre depuis une autre page : on recale une fois les épinglages créés
+  if (location.hash.length > 1) {
+    const cible = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (cible) requestAnimationFrame(() => { if (ctx.lenis) ctx.lenis.scrollTo(cible, { immediate: true, force: true }); else cible.scrollIntoView({ block: 'start' }); });
+  }
 }
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
