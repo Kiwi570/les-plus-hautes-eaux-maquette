@@ -859,3 +859,51 @@ body.fx-colle .hd .hd-cta { opacity: 0; visibility: hidden; }
   .bio-btn { min-height: 44px; }
   .ft a { display: inline-block; padding-block: 8px; }
 }
+
+/* =====================================================================
+   v5 — corrections de l'audit, étape 2
+   ===================================================================== */
+/* Pied de page : le grand nom suit la largeur réelle du bloc (plafonné par --max), plus celle de la fenêtre */
+.reflet { container-type: inline-size; }
+.reflet-nom { font-size: clamp(2.2rem, 7.9cqi, 8.6rem); }
+
+/* Textes : 12 px minimum */
+.carte-age, .statut, .seg button, .date-j span, .fx dt, .verif, .teaser-leg, .media figcaption, .article .ext, .a-completer { font-size: max(12px, .7rem) !important; }
+.credit { font-size: max(12px, .62rem) !important; }
+.compte span, .etapes-nav span, .tool .lbl, .coupure .mono { font-size: max(12px, .68rem); }
+.tags span { font-size: max(12px, .7rem); }
+.cal-case .n { font-size: max(12px, .72rem); }
+.bio-btn { font-size: max(12px, .7rem); }
+
+/* Zones tactiles : 44 px minimum */
+.logo { min-height: 44px; }
+.tool { min-width: 44px; justify-content: center; }
+.hd-tools > * { flex: none; }
+.burger { min-width: 44px; }
+.lien { min-height: 44px; }
+.cal-detail li a, .date-quoi .t a { display: inline-flex; align-items: center; min-height: 44px; }
+.champ select, .a-outils .champ select { min-height: 44px; }
+.annees input[type="range"] { height: 44px; }
+.mail .adr { display: inline-flex; align-items: center; min-height: 44px; }
+.ft ul a { display: inline-flex; align-items: center; min-height: 44px; padding: 0; }
+
+/* Accueil : les images épinglées de « Une représentation chez vous » tiennent dans l'écran sous l'en-tête.
+   Hauteur du bloc = 1,345 × sa largeur + 12 px (16/10, puis 72 % en 4/5 remonté de 18 %, écart de 12 px). */
+@media (min-width: 1000px) {
+  .repr-images { top: calc(var(--entete-h, 68px) + 1rem); width: 100%; max-width: calc((100svh - var(--entete-h, 68px) - 2rem - 12px) / 1.345); margin-inline: auto; }
+}
+
+/* Téléphone : barre d'action du bas, visible une fois le héros dépassé */
+.bb { display: none; }
+@media (max-width: 759px) {
+  .bb {
+    position: fixed; z-index: 75; left: 0; right: 0; bottom: 0; display: flex; gap: .6rem;
+    padding: .6rem var(--gr) calc(env(safe-area-inset-bottom, 0px) + .6rem) var(--g);
+    background: rgba(11, 26, 42, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-top: 1px solid var(--ligne);
+    transform: translateY(110%); visibility: hidden; transition: transform .45s var(--ease), visibility 0s .45s;
+  }
+  .bb.is-on { transform: none; visibility: visible; transition: transform .45s var(--ease); }
+  .bb .btn { flex: 1; min-width: 0; padding: 0 .8rem; }
+  .menu-ouvert .bb { transform: translateY(110%); visibility: hidden; }
+  body.has-bb .ft-bas { padding-bottom: var(--barres-h, 0px); }
+}

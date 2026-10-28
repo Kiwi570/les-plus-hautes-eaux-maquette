@@ -1,5 +1,5 @@
 // Moteur commun : défilement fluide, ouverture, échelle de crue, gélatine, curseur, son, transitions.
-import { next, daysUntil, fLong, cap, titre, SHOW } from './dates.js?v=20261028';
+import { next, daysUntil, fLong, cap, titre, SHOW } from './dates.js?v=20261028-2';
 
 const root = document.documentElement;
 const body = document.body;
@@ -40,7 +40,7 @@ function prefs() {
   const bs = document.querySelector('[data-son]');
   if (bs) {
     bs.addEventListener('click', async () => {
-      if (!ctx.sons) ctx.sons = await import('./sons.js?v=20261028');
+      if (!ctx.sons) ctx.sons = await import('./sons.js?v=20261028-2');
       const on = bs.getAttribute('aria-pressed') !== 'true';
       bs.setAttribute('aria-pressed', String(on));
       bs.setAttribute('aria-label', on ? 'Son : couper l’ambiance sonore' : 'Son : activer l’ambiance sonore');
@@ -323,6 +323,36 @@ function prochaine() {
   if (SHOW[n.s]) l.href = `${REL}spectacles/${SHOW[n.s].slug}.html`;
 }
 
+/* ---------------- hauteurs réelles de l'en-tête et de la barre du bas ---------------- */
+function hauteurs() {
+  const root = document.documentElement;
+  const hd = document.querySelector('[data-hd]'), bb = document.querySelector('[data-bb]');
+  const maj = () => {
+    if (hd) root.style.setProperty('--entete-h', hd.offsetHeight + 'px');
+    root.style.setProperty('--barres-h', (bb && getComputedStyle(bb).display !== 'none' ? bb.offsetHeight : 0) + 'px');
+  };
+  maj();
+  const ro = new ResizeObserver(maj);
+  if (hd) ro.observe(hd);
+  if (bb) ro.observe(bb);
+  addEventListener('resize', maj, { passive: true });
+}
+
+/* ---------------- barre d'action du bas (téléphone) ---------------- */
+function barreBas() {
+  const bb = document.querySelector('[data-bb]');
+  if (!bb) return;
+  document.body.classList.add('has-bb');
+  // masquée sur le héros, le formulaire et le pied de page
+  const zones = ['.hero', '#programmer', '.ft'].map(s => document.querySelector(s)).filter(Boolean);
+  const vus = new Set();
+  const io = new IntersectionObserver(es => {
+    es.forEach(en => en.isIntersecting ? vus.add(en.target) : vus.delete(en.target));
+    bb.classList.toggle('is-on', vus.size === 0);
+  });
+  zones.forEach(z => io.observe(z));
+}
+
 /* ---------------- reflet du pied de page ---------------- */
 function reflet() {
   const turb = document.querySelector('[data-remous]');
@@ -395,7 +425,7 @@ async function eaux() {
   const probe = document.createElement('canvas');
   if (!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;
   try {
-    const { initWater } = await import('./water.js?v=20261028');
+    const { initWater } = await import('./water.js?v=20261028-2');
     const caustiques = `${REL}assets/img/ambiance/texture-caustiques-512.webp`;
     boxes.forEach(b => { const w = initWater(b, { level: .0, caustiques }); if (w) { b._water = w; ctx.water.push(w); } });
   } catch (e) { /* version sans WebGL : la photo reste affichée */ }
@@ -446,7 +476,7 @@ async function boot() {
     gsap.registerPlugin(ST);
     if (window.SplitText) gsap.registerPlugin(window.SplitText);
   }
-  prefs(); entete(); ancres(); echelle(); copies(); scans(); depliants(); prochaine();
+  prefs(); entete(); hauteurs(); barreBas(); ancres(); echelle(); copies(); scans(); depliants(); prochaine();
   await smooth();
   const trans = entree();
   if (!trans) await Promise.race([ouverture(), new Promise(r => setTimeout(r, 3200))]);

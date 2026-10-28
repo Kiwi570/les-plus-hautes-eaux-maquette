@@ -1,7 +1,7 @@
 // Carte de la tournée : chaque commune s'allume en ondes, année après année
-import { DATES } from './data.js?v=20261028';
-import { COMM, DEPTS, VIEWS } from './geo.js?v=20261028';
-import { color, titre, joue, fLong, cap, isPast } from './dates.js?v=20261028';
+import { DATES } from './data.js?v=20261028-2';
+import { COMM, DEPTS, VIEWS } from './geo.js?v=20261028-2';
+import { color, titre, joue, fLong, cap, isPast } from './dates.js?v=20261028-2';
 
 const NS = 'http://www.w3.org/2000/svg';
 const el = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
@@ -33,6 +33,17 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
   svg.append(gDep, gPts);
   box.prepend(svg);
   const scaleFor = v => VIEWS[v][2] / VIEWS.ouest[2];
+  // étiquette du siège : 12 px minimum à l'écran, quelle que soit la largeur de la carte
+  const etiquette = () => pts.forEach(p => {
+    if (!p.label) return;
+    const k = scaleFor(vue), w = svg.getBoundingClientRect().width || 1;
+    const fs = Math.max(9 * k, 12 * VIEWS[vue][2] / w), d = fs * .66;
+    p.label.setAttribute('font-size', fs); p.label.setAttribute('y', p.xy[1] - d);
+    // à droite du point, ou à gauche s'il sortirait de la carte
+    p.label.setAttribute('text-anchor', 'start'); p.label.setAttribute('x', p.xy[0] + d);
+    const bord = VIEWS[vue][0] + VIEWS[vue][2];
+    if (p.xy[0] + d + p.label.getComputedTextLength() > bord) { p.label.setAttribute('text-anchor', 'end'); p.label.setAttribute('x', p.xy[0] - d); }
+  });
 
   for (const p of pts) {
     const g = el('g', { class: 'pt-g', tabindex: '0', role: 'button', 'aria-label': `${p.c} (${p.dep}) : ${p.n} date${p.n > 1 ? 's' : ''}` });
@@ -57,13 +68,16 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
     }
   }
 
+  etiquette();
+  new ResizeObserver(etiquette).observe(svg);
+
   // bulle
   const bulle = box.querySelector('[data-bulle]');
   const show = p => {
     if (!bulle) return;
     const items = [...p.items].sort((a, b) => b.d.localeCompare(a.d));
     const li = items.slice(0, 6).map(x => `<li>${cap(fLong(x.d))} · ${titre(x.s)}${x.statut === 'annule' ? ' (annulé)' : x.statut === 'reporte' ? ' (reporté)' : isPast(x) ? '' : ' · à venir'}</li>`).join('');
-    bulle.innerHTML = `<b>${p.c} (${p.dep})</b><span class="mono" style="font-size:.6rem">${p.n} date${p.n > 1 ? 's' : ''}</span><ul>${li}${items.length > 6 ? `<li>et ${items.length - 6} autres</li>` : ''}</ul>`;
+    bulle.innerHTML = `<b>${p.c} (${p.dep})</b><span class="mono">${p.n} date${p.n > 1 ? 's' : ''}</span><ul>${li}${items.length > 6 ? `<li>et ${items.length - 6} autres</li>` : ''}</ul>`;
     const br = box.getBoundingClientRect(), dr = p.dot.getBoundingClientRect();
     let x = dr.left + dr.width / 2 - br.left, y = dr.top - br.top;
     x = Math.max(110, Math.min(br.width - 110, x));
@@ -120,7 +134,7 @@ export function initCarte(box, { gsap, calme = false, onYear } = {}) {
       pts.forEach(p => p.dot.setAttribute('r', (p.n ? p.r : p.r * .7) * k));
     }
     pts.forEach(p => p.hit.setAttribute('r', Math.max(p.r * 2.2, 7) * k));
-    pts.forEach(p => { if (p.label) { p.label.setAttribute('font-size', 9 * k); p.label.setAttribute('x', p.xy[0] + 6 * k); p.label.setAttribute('y', p.xy[1] - 6 * k); } });
+    etiquette();
     hide();
   };
   btns.forEach(b => b.addEventListener('click', () => setVue(b.dataset.vue)));

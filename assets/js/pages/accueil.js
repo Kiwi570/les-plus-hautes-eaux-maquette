@@ -1,8 +1,8 @@
 // Accueil : 1910, répertoire, décembre, tournée, frise, équipe, ateliers, presse, formulaire
-import { DATES } from '../data.js?v=20261028';
-import { SHOW, color, titre, joue, fLong, cap } from '../dates.js?v=20261028';
-import { setLvl } from '../app.js?v=20261028';
-import { animerObjet } from './objets.js?v=20261028';
+import { DATES } from '../data.js?v=20261028-2';
+import { SHOW, color, titre, joue, fLong, cap } from '../dates.js?v=20261028-2';
+import { setLvl } from '../app.js?v=20261028-2';
+import { animerObjet } from './objets.js?v=20261028-2';
 
 export default async function accueil(ctx) {
   const { gsap, ST, calme, fine } = ctx;
@@ -126,7 +126,7 @@ export default async function accueil(ctx) {
   const carteBox = document.querySelector('[data-carte]');
   // la carte (et ses 170 Ko de contours) ne se charge qu'à l'approche de la section
   const lancerCarte = async () => {
-    const { initCarte } = await import('../carte.js?v=20261028');
+    const { initCarte } = await import('../carte.js?v=20261028-2');
     const range = document.querySelector('[data-annee]');
     const lab = carteBox.querySelector('[data-carte-annee]');
     const carte = initCarte(carteBox, { gsap, calme, onYear: y => { lab.textContent = y >= 2027 ? '2018 → 2027' : y; if (range && +range.value !== y) range.value = y; } });
