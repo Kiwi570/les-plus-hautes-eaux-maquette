@@ -1,6 +1,6 @@
 // Agenda : listes depuis le fichier unique, filtres spectacle et département, .ics, carte libre
-import { DATES } from '../data.js';
-import { ligne, upcoming, joue, daysUntil, titre, icsFor } from '../dates.js';
+import { DATES } from '../data.js?v=20261028';
+import { ligne, upcoming, joue, daysUntil, titre, icsFor } from '../dates.js?v=20261028';
 
 export default function agenda(ctx) {
   const { gsap, calme } = ctx;
@@ -35,7 +35,7 @@ export default function agenda(ctx) {
   const box = document.querySelector('[data-carte]');
   let carte = null;
   const lancerCarte = async () => {
-    const { initCarte } = await import('../carte.js');
+    const { initCarte } = await import('../carte.js?v=20261028');
     const range = document.querySelector('[data-annee]');
     const out = document.querySelector('[data-annee-out]');
     const lab = box.querySelector('[data-carte-annee]');

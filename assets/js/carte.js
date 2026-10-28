@@ -1,7 +1,7 @@
 // Carte de la tournée : chaque commune s'allume en ondes, année après année
-import { DATES } from './data.js';
-import { COMM, DEPTS, VIEWS } from './geo.js';
-import { color, titre, joue, fLong, cap, isPast } from './dates.js';
+import { DATES } from './data.js?v=20261028';
+import { COMM, DEPTS, VIEWS } from './geo.js?v=20261028';
+import { color, titre, joue, fLong, cap, isPast } from './dates.js?v=20261028';
 
 const NS = 'http://www.w3.org/2000/svg';
 const el = (n, a = {}) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };

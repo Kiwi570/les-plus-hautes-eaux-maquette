@@ -1,7 +1,7 @@
 // Fiche spectacle : dates depuis le fichier unique, compte à rebours, galerie, visionneuse, objet animé
-import { DATES } from '../data.js';
-import { ligne, upcoming, daysUntil, fLong, cap, MOIS_C, parse } from '../dates.js';
-import { animerObjet } from './objets.js';
+import { DATES } from '../data.js?v=20261028';
+import { ligne, upcoming, daysUntil, fLong, cap, MOIS_C, parse } from '../dates.js?v=20261028';
+import { animerObjet } from './objets.js?v=20261028';
 
 export default function fiche(ctx) {
   const { gsap, ST, calme, fine } = ctx;
@@ -38,7 +38,7 @@ export default function fiche(ctx) {
     const b = e.target.closest('[data-ics]');
     if (!b) return;
     const [d, s, c] = b.dataset.ics.split('|');
-    const { icsFor } = await import('../dates.js');
+    const { icsFor } = await import('../dates.js?v=20261028');
     icsFor(d, s, c);
     ctx.toast('Fichier agenda (.ics) téléchargé');
   });

@@ -1,5 +1,5 @@
 // Outils de dates partagés : tri à venir / passées, rendu des lignes, export .ics
-import { SHOWS, EXTRA, DATES } from './data.js';
+import { SHOWS, EXTRA, DATES } from './data.js?v=20261028';
 
 export const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 export const MOIS_C = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];

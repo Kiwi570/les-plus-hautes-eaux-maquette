@@ -1,5 +1,5 @@
 // Moteur commun : défilement fluide, ouverture, échelle de crue, gélatine, curseur, son, transitions.
-import { next, daysUntil, fLong, cap, titre, SHOW } from './dates.js';
+import { next, daysUntil, fLong, cap, titre, SHOW } from './dates.js?v=20261028';
 
 const root = document.documentElement;
 const body = document.body;
@@ -40,7 +40,7 @@ function prefs() {
   const bs = document.querySelector('[data-son]');
   if (bs) {
     bs.addEventListener('click', async () => {
-      if (!ctx.sons) ctx.sons = await import('./sons.js');
+      if (!ctx.sons) ctx.sons = await import('./sons.js?v=20261028');
       const on = bs.getAttribute('aria-pressed') !== 'true';
       bs.setAttribute('aria-pressed', String(on));
       bs.setAttribute('aria-label', on ? 'Son : couper l’ambiance sonore' : 'Son : activer l’ambiance sonore');
@@ -395,7 +395,7 @@ async function eaux() {
   const probe = document.createElement('canvas');
   if (!(probe.getContext('webgl') || probe.getContext('experimental-webgl'))) return;
   try {
-    const { initWater } = await import('./water.js');
+    const { initWater } = await import('./water.js?v=20261028');
     const caustiques = `${REL}assets/img/ambiance/texture-caustiques-512.webp`;
     boxes.forEach(b => { const w = initWater(b, { level: .0, caustiques }); if (w) { b._water = w; ctx.water.push(w); } });
   } catch (e) { /* version sans WebGL : la photo reste affichée */ }
